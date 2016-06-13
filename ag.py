@@ -13,6 +13,18 @@ def bits_valores():
     return precisao_bits
 
 
+def valor_da_variavel(vetor_precisao, genoma):
+    x = 0
+    y = 0
+    for i in range(0, 25):
+        if genoma[i]:
+            x += vetor_precisao[i]
+    for i in range(26, 50):
+        if genoma[i]:
+            y += vetor_precisao[i - 26]
+    return x, y
+
+
 def criar_populacao(tamanho_populacao, tamanho_codigo):
     populacao_criada = []
     lista = []
@@ -42,5 +54,7 @@ def mutacao():
 
 
 populacao = criar_populacao(10, 50)
-print(populacao)
+x, y = valor_da_variavel(bits_valores(), populacao[1])
+print(populacao[1])
 print(bits_valores())
+print(x)
