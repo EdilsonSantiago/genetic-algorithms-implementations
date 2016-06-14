@@ -1,6 +1,6 @@
 __author__ = 'edilson'
 
-# import numpy as np
+import numpy as np
 from random import randint
 
 # z = 0.5 - (((np.sin(np.sqrt(x**2 + y**2)))**2 - 0.5) / (1 + (0.001 * (x**2 + y**2)) ** 2
@@ -13,16 +13,16 @@ def bits_valores():
     return precisao_bits
 
 
-def valor_da_variavel(vetor_precisao, genoma):
-    x = 0
-    y = 0
+def valor_da_variavel(vetor_precisao, cromossomo):
+    eixo_x = 0
+    eixo_y = 0
     for i in range(0, 25):
-        if genoma[i]:
-            x += vetor_precisao[i]
+        if cromossomo[i]:
+            eixo_x += vetor_precisao[i]
     for i in range(26, 50):
-        if genoma[i]:
-            y += vetor_precisao[i - 26]
-    return x, y
+        if cromossomo[i]:
+            eixo_y += vetor_precisao[i - 26]
+    return eixo_x, eixo_y
 
 
 def criar_populacao(tamanho_populacao, tamanho_codigo):
@@ -37,8 +37,9 @@ def criar_populacao(tamanho_populacao, tamanho_codigo):
     return populacao_criada
 
 
-def avaliacao_aptidao():
-    pass
+def avaliacao_aptidao(x, y):
+    aptidao = 0.5 - (((np.sin(np.sqrt(x**2 + y**2)))**2 - 0.5) / (1 + (0.001 * (x**2 + y**2)) ** 2))
+    return aptidao
 
 
 def selecao():
@@ -58,3 +59,4 @@ x, y = valor_da_variavel(bits_valores(), populacao[1])
 print(populacao[1])
 print(bits_valores())
 print(x)
+print(avaliacao_aptidao(x, y))
