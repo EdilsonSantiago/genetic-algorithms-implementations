@@ -3,8 +3,6 @@ __author__ = 'edilson'
 import numpy as np
 from random import randint
 
-# z = 0.5 - (((np.sin(np.sqrt(x**2 + y**2)))**2 - 0.5) / (1 + (0.001 * (x**2 + y**2)) ** 2
-
 
 def bits_valores():
     precisao_bits = [200 / ((2 ** 25) - 1)]
@@ -46,8 +44,26 @@ def selecao():
     pass
 
 
-def cruzamento():
-    pass
+def cruzamento(populacao_1):
+    contador = 0
+    nova_populacao = []
+    filho_1 = []
+    filho_2 = []
+    while contador < len(populacao_1):
+        pai_1 = populacao_1[contador]
+        pai_2 = populacao_1[contador + 1]
+        for i in range(0, 25):
+            filho_1.append(pai_1[i])
+            filho_2.append(pai_2[i])
+        for i in range(26, 50):
+            filho_1.append(pai_1[i])
+            filho_2.append(pai_2[i])
+        nova_populacao.append(filho_1)
+        nova_populacao.append(filho_2)
+        filho_1 = []
+        filho_2 = []
+        contador += 2
+    return nova_populacao
 
 
 def mutacao():
@@ -55,8 +71,10 @@ def mutacao():
 
 
 populacao = criar_populacao(10, 50)
-x, y = valor_da_variavel(bits_valores(), populacao[1])
+individuos = cruzamento(populacao)
+variavel_x, variavel_y = valor_da_variavel(bits_valores(), populacao[1])
 print(populacao[1])
 print(bits_valores())
-print(x)
-print(avaliacao_aptidao(x, y))
+print(variavel_x)
+print(avaliacao_aptidao(variavel_x, variavel_y))
+print(individuos)
