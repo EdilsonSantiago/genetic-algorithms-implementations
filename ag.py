@@ -4,6 +4,11 @@ import numpy as np
 from random import randint, uniform
 
 
+tamanho_populacao = 100
+tamanho_codigo = 50
+geracoes = 50
+i = 0
+
 def bits_valores():
     precisao_bits = [200 / ((2 ** 25) - 1)]
     for k in range(1, 25):
@@ -64,13 +69,13 @@ def selecao(populacao_selecao, vetor_aptidao, tamanho_populacao):
     return nova_populacao
 
 
-def cruzamento(populacao_1):
+def cruzamento(populacao_1, tamanho_populacao):
     contador = 0
     nova_populacao = []
     filho_1 = []
     filho_2 = []
 
-    while contador < len(populacao_1):
+    while contador < tamanho_populacao:
         ponto = randint(1, 49)
         pai_1 = populacao_1[contador]
         pai_2 = populacao_1[contador + 1]
@@ -80,25 +85,33 @@ def cruzamento(populacao_1):
         for i in range(ponto + 1, 50):
             filho_1.append(pai_1[i])
             filho_2.append(pai_2[i])
-        nova_populacao.append(filho_1)
-        nova_populacao.append(filho_2)
+        populacao_1.append(filho_1)
+        populacao_1.append(filho_2)
         filho_1 = []
         filho_2 = []
         contador += 2
-    return nova_populacao
+    return populacao_1
 
 
-def mutacao():
-    pass
+def mutacao(vetor_populacao):
+    taxa_de_mutacao = 10
+    for i in range(0, len(vetor_populacao)):
+        numero_aleatorio = randint(0, 100)
+        if numero_aleatorio < taxa_de_mutacao:
+            indice = randint(0, 50)
+            vetor = vetor_populacao[i]
+            if vetor[indice] == 0:
+                vetor[indice] = 1
+            else:
+                vetor[indice] = 0
+            vetor_populacao[i] = vetor
+    return vetor_populacao
 
-
-tamanho_populacao = 10
-populacao = criar_populacao(20, 50)
-individuos = cruzamento(populacao)
-populacao = selecao(populacao, avaliacao_aptidao(populacao), tamanho_populacao)
-variavel_x, variavel_y = valor_da_variavel(bits_valores(), populacao[1])
-print(populacao[1])
-print(bits_valores())
-print(variavel_x)
-print(avaliacao_aptidao(populacao))
-print(individuos)
+populacao = criar_populacao(tamanho_populacao, tamanho_codigo)
+while i == geracoes:
+    populacao = cruzamento(populacao, tamanho_populacao)
+    populacao = mutacao(populacao)
+    aptidao = avaliacao_aptidao(populacao)
+    populacao = selecao(populacao, aptidao, tamanho_populacao)
+    i += 1
+print(populacao)
