@@ -8,15 +8,19 @@ import matplotlib.pyplot as plt
 
 tamanho_populacao = 50
 tamanho_codigo = 50
-geracoes = 1000
+geracoes = 100
 geracao_atual = 0
 taxa_cruzamento = 75
 taxa_mutacao = 1
+media_armazenamento = [[], [], []]
+apto_armazenamento = [[], [], []]
+vetor4 = []
+vetor5 = []
 apto = []
 media_apt = []
 posicao_x = []
 posicao_y = []
-eixo = np.linspace(0, 999, 1000)
+eixo = np.linspace(0, 99, 100)
 
 
 def criar_populacao(tamanho_populacao, tamanho_codigo):
@@ -44,10 +48,10 @@ def valor_da_variavel(vetor_precisao, cromossomo):
     for i in range(0, 25):
         if cromossomo[i]:
             eixo_x += vetor_precisao[i]
-    for i in range(26, 49):
+    for i in range(25, 50):
         if cromossomo[i]:
             eixo_y += vetor_precisao[i - 26]
-    return eixo_x, eixo_y
+    return eixo_x - 100, eixo_y - 100
 
 
 def avaliacao_aptidao(vetor_populacao):
@@ -129,21 +133,35 @@ def mais_apto(aptidao):
 
 
 populacao = criar_populacao(tamanho_populacao, tamanho_codigo)
-
 for j in range(0, tamanho_populacao):
-        x, y = valor_da_variavel(bits_valores(), populacao[j])
-        posicao_x.append(x)
-        posicao_y.append(y)
+    x, y = valor_da_variavel(bits_valores(), populacao[j])
+    posicao_x.append(x)
+    posicao_y.append(y)
+for var in range(0, 3):
+    while geracao_atual < geracoes:
+        print(geracao_atual)
+        populacao = cruzamento(populacao, tamanho_populacao, taxa_cruzamento)
+        populacao = mutacao(populacao, taxa_mutacao)
+        aptidao = avaliacao_aptidao(populacao)
 
-while geracao_atual < geracoes:
-    print(geracao_atual)
-    populacao = cruzamento(populacao, tamanho_populacao, taxa_cruzamento)
-    populacao = mutacao(populacao, taxa_mutacao)
-    aptidao = avaliacao_aptidao(populacao)
+        apto.append(mais_apto(aptidao))
+        media_apt.append(sum(aptidao)/len(aptidao))
+        geracao_atual += 1
+    media_armazenamento[var] = media_apt
+    apto_armazenamento[var] = apto
 
-    apto.append(mais_apto(aptidao))
-    media_apt.append(sum(aptidao)/len(aptidao))
-    geracao_atual += 1
+vetor1 = media_armazenamento[0]
+vetor2 = media_armazenamento[1]
+vetor3 = media_armazenamento[2]
+apto1 = apto_armazenamento[0]
+apto2 = apto_armazenamento[1]
+apto3 = apto_armazenamento[2]
+
+print(len(vetor1))
+for i in range(0, 100):
+    vetor4.append((vetor1[i] + vetor2[i] + vetor3[i])/3)
+    vetor5.append((apto1[i] + apto2[i] + apto3[i])/3)
+
 
 """
 matplotlib.rcParams['axes.unicode_minus'] = False
@@ -153,6 +171,6 @@ ax.plot(posicao_x, posicao_y, 'o')
 """
 f, vetor = plt.subplots(2)
 vetor[0].plot(eixo, apto)
-vetor[1].plot(eixo, media_apt)
+vetor[1].plot(eixo, vetor4)
 
 plt.show()
