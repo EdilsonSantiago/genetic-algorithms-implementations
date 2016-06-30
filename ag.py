@@ -2,7 +2,7 @@ __author__ = 'edilson'
 
 import numpy as np
 from random import randint, uniform
-import matplotlib
+# import matplotlib
 import matplotlib.pyplot as plt
 
 
@@ -16,8 +16,6 @@ media_armazenamento = [[], [], []]
 apto_armazenamento = [[], [], []]
 vetor4 = []
 vetor5 = []
-apto = []
-media_apt = []
 posicao_x = []
 posicao_y = []
 eixo = np.linspace(0, 99, 100)
@@ -138,6 +136,9 @@ for j in range(0, tamanho_populacao):
     posicao_x.append(x)
     posicao_y.append(y)
 for var in range(0, 3):
+    print(var)
+    apto = []
+    media_apt = []
     while geracao_atual < geracoes:
         print(geracao_atual)
         populacao = cruzamento(populacao, tamanho_populacao, taxa_cruzamento)
@@ -149,6 +150,7 @@ for var in range(0, 3):
         geracao_atual += 1
     media_armazenamento[var] = media_apt
     apto_armazenamento[var] = apto
+    geracao_atual = 0
 
 vetor1 = media_armazenamento[0]
 vetor2 = media_armazenamento[1]
@@ -157,7 +159,7 @@ apto1 = apto_armazenamento[0]
 apto2 = apto_armazenamento[1]
 apto3 = apto_armazenamento[2]
 
-print(len(vetor1))
+print(vetor1)
 for i in range(0, 100):
     vetor4.append((vetor1[i] + vetor2[i] + vetor3[i])/3)
     vetor5.append((apto1[i] + apto2[i] + apto3[i])/3)
@@ -170,7 +172,7 @@ ax = fig.add_subplot(111)
 ax.plot(posicao_x, posicao_y, 'o')
 """
 f, vetor = plt.subplots(2)
-vetor[0].plot(eixo, apto)
+vetor[0].plot(eixo, vetor5)
 vetor[1].plot(eixo, vetor4)
 
 plt.show()
