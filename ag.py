@@ -2,23 +2,16 @@ __author__ = 'edilson'
 
 import numpy as np
 from random import randint, uniform
-# import matplotlib
 import matplotlib.pyplot as plt
-
+import csv
 
 tamanho_populacao = 50
 tamanho_codigo = 50
-geracoes = 100
+geracoes = 1000
 geracao_atual = 0
 taxa_cruzamento = 75
 taxa_mutacao = 1
-media_armazenamento = [[], [], []]
-apto_armazenamento = [[], [], []]
-vetor4 = []
-vetor5 = []
-posicao_x = []
-posicao_y = []
-eixo = np.linspace(0, 99, 100)
+eixo = np.linspace(0, 999, 1000)
 
 
 def criar_populacao(tamanho_populacao, tamanho_codigo):
@@ -65,8 +58,7 @@ def avaliacao_aptidao(vetor_populacao):
 def selecao(populacao, vetor_aptidao):
     soma, acumulador, ind = 0, vetor_aptidao[0], 0
     selecionado = []
-    for i in range(0, len(vetor_aptidao)):
-        soma += vetor_aptidao[i]
+    soma = sum(vetor_aptidao)
     num_aleatorio = uniform(0, soma)
     while len(selecionado) != 50:
         acumulador += vetor_aptidao[ind]
@@ -130,49 +122,58 @@ def mais_apto(aptidao):
     return apto
 
 
-populacao = criar_populacao(tamanho_populacao, tamanho_codigo)
-for j in range(0, tamanho_populacao):
-    x, y = valor_da_variavel(bits_valores(), populacao[j])
-    posicao_x.append(x)
-    posicao_y.append(y)
-for var in range(0, 3):
-    print(var)
-    apto = []
-    media_apt = []
-    while geracao_atual < geracoes:
-        print(geracao_atual)
-        populacao = cruzamento(populacao, tamanho_populacao, taxa_cruzamento)
-        populacao = mutacao(populacao, taxa_mutacao)
-        aptidao = avaliacao_aptidao(populacao)
+c = csv.writer(open("aptos.csv", "w"))
+d = csv.writer(open("media.csv", "w"))
+for var1 in range(0, 10):
+    populacao = criar_populacao(tamanho_populacao, tamanho_codigo)
+    for var in range(0, 3):
+        print(var)
+        apto = []
+        media_apt = []
+        while geracao_atual < geracoes:
+            print(geracao_atual)
+            populacao = cruzamento(populacao, tamanho_populacao, taxa_cruzamento)
+            populacao = mutacao(populacao, taxa_mutacao)
+            aptidao = avaliacao_aptidao(populacao)
+            apto.append(mais_apto(aptidao))
+            media_apt.append(sum(aptidao)/len(aptidao))
+            geracao_atual += 1
 
-        apto.append(mais_apto(aptidao))
-        media_apt.append(sum(aptidao)/len(aptidao))
-        geracao_atual += 1
-    media_armazenamento[var] = media_apt
-    apto_armazenamento[var] = apto
-    geracao_atual = 0
-
-vetor1 = media_armazenamento[0]
-vetor2 = media_armazenamento[1]
-vetor3 = media_armazenamento[2]
-apto1 = apto_armazenamento[0]
-apto2 = apto_armazenamento[1]
-apto3 = apto_armazenamento[2]
-
-print(vetor1)
-for i in range(0, 100):
-    vetor4.append((vetor1[i] + vetor2[i] + vetor3[i])/3)
-    vetor5.append((apto1[i] + apto2[i] + apto3[i])/3)
+        c.writerow(apto)
+        d.writerow(media_apt)
+        geracao_atual = 0
 
 
-"""
-matplotlib.rcParams['axes.unicode_minus'] = False
-fig = plt.figure()
-ax = fig.add_subplot(111)
-ax.plot(posicao_x, posicao_y, 'o')
-"""
+media_apt = []
+apto = []
+for i in range(0, geracoes):
+    media_apt.append(0)
+    apto.append(0)
+with open('media.csv', 'r') as media:
+    reader = csv.reader(media, delimiter=',')
+
+    for linha in reader:
+        var = 0
+        for valor in linha:
+            media_apt[var] += float(valor)
+            var += 1
+
+with open('aptos.csv', 'r') as aptos:
+    reader = csv.reader(aptos, delimiter=',')
+
+    for linha in reader:
+        var = 0
+        for valor in linha:
+            apto[var] += float(valor)
+            var += 1
+
+    for indice in range(0, len(media_apt)):
+        media_apt[indice] /= 30
+        apto[indice] /= 30
+
+
 f, vetor = plt.subplots(2)
-vetor[0].plot(eixo, vetor5)
-vetor[1].plot(eixo, vetor4)
+vetor[0].plot(eixo, apto)
+vetor[1].plot(eixo, media_apt)
 
 plt.show()
