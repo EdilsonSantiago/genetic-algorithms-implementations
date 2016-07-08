@@ -9,7 +9,7 @@ tamanho_populacao = 50
 tamanho_codigo = 50
 geracoes = 1000
 melhor_individuo = 0
-# melhor_individuo_cromossomo = []
+melhor_individuo_cromossomo = []
 geracao_atual = 0
 taxa_cruzamento = 75
 taxa_mutacao = 1
@@ -115,12 +115,15 @@ def mutacao(vetor_populacao, taxa_de_mutacao):
     return vetor_populacao
 
 
-def mais_apto(aptidao_apto):
+def mais_apto(aptidao_apto, populacao_apto):
     apto = 0
+    cromossomo = []
     for i in range(0, len(aptidao_apto)):
         if apto < aptidao_apto[i]:
             apto = aptidao_apto[i]
-    return apto
+            cromossomo = populacao_apto[i]
+
+    return apto, cromossomo
 
 
 c = csv.writer(open("aptos.csv", "w"))
@@ -136,9 +139,11 @@ for var1 in range(0, 10):
             populacao = cruzamento(populacao)
             populacao = mutacao(populacao, taxa_mutacao)
             aptidao = avaliacao_aptidao(populacao)
-            aptos.append(mais_apto(aptidao))
-            if mais_apto(aptidao) > melhor_individuo:
-                melhor_individuo = mais_apto(aptidao)
+            individuo_apto, cromossomo_apto = mais_apto(aptidao, populacao)
+            aptos.append(individuo_apto)
+            if individuo_apto > melhor_individuo:
+                melhor_individuo = individuo_apto
+                melhor_individuo_cromossomo = cromossomo_apto
             media_apt.append(sum(aptidao)/len(aptidao))
             geracao_atual += 1
 
@@ -174,8 +179,15 @@ with open('aptos.csv', 'r') as ap:
         media_apt[indice] /= 30
         aptos[indice] /= 30
 
+
+melhor_individuo_x, melhor_individuo_y = valor_da_variavel(bits_valores(), melhor_individuo_cromossomo)
+
 print("Melhor indivíduo:")
 print(melhor_individuo)
+print("Cromossomo")
+print(melhor_individuo_cromossomo)
+print("Posição")
+print(melhor_individuo_x, melhor_individuo_y)
 
 plt.subplot(2, 1, 1)
 plt.plot(eixo, aptos)
