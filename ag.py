@@ -126,11 +126,12 @@ def mais_apto(aptidao_apto, populacao_apto):
     return apto, cromossomo
 
 
-c = csv.writer(open("aptos.csv", "w"))
-d = csv.writer(open("media.csv", "w"))
+c = csv.writer(open('aptos.csv', 'w'))
+d = csv.writer(open('media.csv', 'w'))
 for var1 in range(0, 10):
     populacao = criar_populacao()
-    for var in range(0, 3):
+    var = 0
+    while var < 3:
         print(var)
         aptos = []
         media_apt = []
@@ -146,12 +147,13 @@ for var1 in range(0, 10):
                 melhor_individuo_cromossomo = cromossomo_apto
             media_apt.append(sum(aptidao)/len(aptidao))
             geracao_atual += 1
-
-        c.writerow(aptos)
-        d.writerow(media_apt)
+        if len(aptos) and len(media_apt) == geracoes:
+            c.writerow(aptos)
+            d.writerow(media_apt)
+            var += 1
         geracao_atual = 0
 
-
+# Execução do Algoritmo Genético
 media_apt = []
 aptos = []
 for p in range(0, geracoes):
