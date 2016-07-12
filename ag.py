@@ -7,13 +7,13 @@ import csv
 
 tamanho_populacao = 50
 tamanho_codigo = 50
-geracoes = 1000
+geracoes = 5000
 melhor_individuo = 0
 melhor_individuo_cromossomo = []
 geracao_atual = 0
 taxa_cruzamento = 75
 taxa_mutacao = 1
-eixo = np.linspace(0, 999, 1000)
+eixo = np.linspace(0, 4999, 5000)
 
 
 def criar_populacao():
@@ -116,14 +116,16 @@ def mutacao(vetor_populacao, taxa_de_mutacao):
 
 
 def mais_apto(aptidao_apto, populacao_apto):
-    apto = 0
+    apto = aptidao_apto[0]
+    menos_apto = aptidao_apto[0]
     cromossomo = []
-    for i in range(0, len(aptidao_apto)):
+    for i in range(1, len(aptidao_apto)):
         if apto < aptidao_apto[i]:
             apto = aptidao_apto[i]
             cromossomo = populacao_apto[i]
-
-    return apto, cromossomo
+        if menos_apto > aptidao_apto[i]:
+            menos_apto = aptidao_apto[i]
+    return apto, cromossomo, menos_apto
 
 
 def media(arquivo):
@@ -145,20 +147,24 @@ def media(arquivo):
 # Execução do Algoritmo Genético
 c = csv.writer(open('aptos.csv', 'w'))
 d = csv.writer(open('media.csv', 'w'))
+r = csv.writer(open('piores_individuos.csv', 'w'))
 for var1 in range(0, 10):
-    populacao = criar_populacao()
+    populacao_nova = criar_populacao()
     var = 0
     while var < 3:
         print(var)
         aptos = []
         media_apt = []
+        pior_individuo = []
+        populacao = populacao_nova
         while geracao_atual < geracoes:
             print(geracao_atual)
             populacao = cruzamento(populacao)
             populacao = mutacao(populacao, taxa_mutacao)
             aptidao = avaliacao_aptidao(populacao)
-            individuo_apto, cromossomo_apto = mais_apto(aptidao, populacao)
+            individuo_apto, cromossomo_apto, menor_fitness = mais_apto(aptidao, populacao)
             aptos.append(individuo_apto)
+            pior_individuo.append(menor_fitness)
             if individuo_apto > melhor_individuo:
                 melhor_individuo = individuo_apto
                 melhor_individuo_cromossomo = cromossomo_apto
@@ -167,11 +173,13 @@ for var1 in range(0, 10):
         if len(aptos) and len(media_apt) == geracoes:
             c.writerow(aptos)
             d.writerow(media_apt)
+            r.writerow(pior_individuo)
             var += 1
         geracao_atual = 0
 
 media_apt = media('media.csv')
 aptos = media('aptos.csv')
+pior_individuo = media('piores_individuos.csv')
 
 melhor_individuo_x, melhor_individuo_y = valor_da_variavel(bits_valores(), melhor_individuo_cromossomo)
 
@@ -182,11 +190,15 @@ print(melhor_individuo_cromossomo)
 print("Posição")
 print(melhor_individuo_x, melhor_individuo_y)
 
-plt.subplot(2, 1, 1)
+plt.subplot(3, 1, 1)
 plt.plot(eixo, aptos)
 plt.ylabel('Melhor indivíduo')
 
-plt.subplot(2, 1, 2)
+plt.subplot(3, 1, 2)
+plt.plot(eixo, pior_individuo)
+plt.ylabel('Pior Individuo')
+
+plt.subplot(3, 1, 3)
 plt.plot(eixo, media_apt)
 plt.xlabel('Gerações')
 plt.ylabel('Média de todos os indivíduos')
