@@ -126,6 +126,23 @@ def mais_apto(aptidao_apto, populacao_apto):
     return apto, cromossomo
 
 
+def media(arquivo):
+    vetor_media = []
+    for p in range(0, geracoes):
+        vetor_media.append(0)
+    with open(arquivo, 'r') as arq:
+        reader = csv.reader(arq, delimiter=',')
+
+        for linha in reader:
+            var_indice = 0
+            for valor in linha:
+                vetor_media[var_indice] += float(valor)
+                var_indice += 1
+    for indice in range(0, len(media_apt)):
+        vetor_media[indice] /= 30
+    return vetor_media
+
+# Execução do Algoritmo Genético
 c = csv.writer(open('aptos.csv', 'w'))
 d = csv.writer(open('media.csv', 'w'))
 for var1 in range(0, 10):
@@ -153,34 +170,8 @@ for var1 in range(0, 10):
             var += 1
         geracao_atual = 0
 
-# Execução do Algoritmo Genético
-media_apt = []
-aptos = []
-for p in range(0, geracoes):
-    media_apt.append(0)
-    aptos.append(0)
-with open('media.csv', 'r') as media:
-    reader = csv.reader(media, delimiter=',')
-
-    for linha in reader:
-        var = 0
-        for valor in linha:
-            media_apt[var] += float(valor)
-            var += 1
-
-with open('aptos.csv', 'r') as ap:
-    reader = csv.reader(ap, delimiter=',')
-
-    for linha in reader:
-        var = 0
-        for valor in linha:
-            aptos[var] += float(valor)
-            var += 1
-
-    for indice in range(0, len(media_apt)):
-        media_apt[indice] /= 30
-        aptos[indice] /= 30
-
+media_apt = media('media.csv')
+aptos = media('aptos.csv')
 
 melhor_individuo_x, melhor_individuo_y = valor_da_variavel(bits_valores(), melhor_individuo_cromossomo)
 
