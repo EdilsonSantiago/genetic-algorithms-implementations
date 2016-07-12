@@ -7,13 +7,13 @@ import csv
 
 tamanho_populacao = 50
 tamanho_codigo = 50
-geracoes = 5000
+geracoes = 1000
 melhor_individuo = 0
 melhor_individuo_cromossomo = []
 geracao_atual = 0
 taxa_cruzamento = 75
 taxa_mutacao = 1
-eixo = np.linspace(0, 4999, 5000)
+eixo = np.linspace(0, 999, 1000)
 
 
 def criar_populacao():
@@ -144,6 +144,23 @@ def media(arquivo):
         vetor_media[indice] /= 30
     return vetor_media
 
+
+def desv_padrao(arq, vetor_padrao):
+    soma_desvio = []
+    for p in range(0, geracoes):
+        soma_desvio.append(0)
+    with open(arq, 'r') as ar:
+        reader = csv.reader(ar, delimiter=',')
+        for linha in reader:
+            va = 0
+            for valor in linha:
+                soma_desvio[va] += ((float(valor) - vetor_padrao[va]) ** 2)
+                va += 1
+    for indice in range(0, len(soma_desvio)):
+        soma_desvio[indice] /= 30
+    desvio_padrao = np.sqrt(soma_desvio)
+    return desvio_padrao
+
 # Execução do Algoritmo Genético
 c = csv.writer(open('aptos.csv', 'w'))
 d = csv.writer(open('media.csv', 'w'))
@@ -176,10 +193,14 @@ for var1 in range(0, 10):
             r.writerow(pior_individuo)
             var += 1
         geracao_atual = 0
-
+# Média dos 30 ensaios
 media_apt = media('media.csv')
 aptos = media('aptos.csv')
 pior_individuo = media('piores_individuos.csv')
+# Desvio padrão dos 30 ensaios
+media_des = desv_padrao('media.csv', media_apt)
+aptos_des = desv_padrao('aptos.csv', aptos)
+pior_individuo_des = desv_padrao('piores_individuos.csv', pior_individuo)
 
 melhor_individuo_x, melhor_individuo_y = valor_da_variavel(bits_valores(), melhor_individuo_cromossomo)
 
@@ -190,17 +211,21 @@ print(melhor_individuo_cromossomo)
 print("Posição")
 print(melhor_individuo_x, melhor_individuo_y)
 
-plt.subplot(3, 1, 1)
-plt.plot(eixo, aptos)
+plt.subplot(4, 1, 1)
+plt.plot(eixo, aptos, eixo, pior_individuo, eixo, media_apt)
+plt.ylabel('Dados')
+
+plt.subplot(4, 1, 2)
+plt.errorbar(eixo, aptos, yerr=aptos_des, errorevery = 10)
 plt.ylabel('Melhor indivíduo')
 
-plt.subplot(3, 1, 2)
-plt.plot(eixo, pior_individuo)
+plt.subplot(4, 1, 3)
+plt.errorbar(eixo, pior_individuo, yerr=pior_individuo_des, errorevery = 10)
 plt.ylabel('Pior Individuo')
 
-plt.subplot(3, 1, 3)
-plt.plot(eixo, media_apt)
+plt.subplot(4, 1, 4)
+plt.errorbar(eixo, media_apt, yerr=media_des, errorevery = 10)
 plt.xlabel('Gerações')
-plt.ylabel('Média de todos os indivíduos')
+plt.ylabel('Média dos indivíduos')
 
 plt.show()
