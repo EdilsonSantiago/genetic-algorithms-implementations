@@ -118,7 +118,7 @@ def mutacao(vetor_populacao, taxa_de_mutacao):
 def mais_apto(aptidao_apto, populacao_apto):
     apto = aptidao_apto[0]
     menos_apto = aptidao_apto[0]
-    cromossomo = []
+    cromossomo = populacao_apto[0]
     for i in range(1, len(aptidao_apto)):
         if apto < aptidao_apto[i]:
             apto = aptidao_apto[i]
@@ -175,18 +175,19 @@ for var1 in range(0, 10):
         pior_individuo = []
         populacao = populacao_nova
         while geracao_atual < geracoes:
-            print(geracao_atual)
+            # print(geracao_atual)
             populacao = cruzamento(populacao)
             populacao = mutacao(populacao, taxa_mutacao)
             aptidao = avaliacao_aptidao(populacao)
             individuo_apto, cromossomo_apto, menor_fitness = mais_apto(aptidao, populacao)
             aptos.append(individuo_apto)
             pior_individuo.append(menor_fitness)
-            if individuo_apto > melhor_individuo:
+            if individuo_apto > melhor_individuo and geracao_atual == 49:
                 melhor_individuo = individuo_apto
                 melhor_individuo_cromossomo = cromossomo_apto
             media_apt.append(sum(aptidao)/len(aptidao))
             geracao_atual += 1
+
         if len(aptos) and len(media_apt) == geracoes:
             c.writerow(aptos)
             d.writerow(media_apt)
@@ -201,7 +202,6 @@ pior_individuo = media('piores_individuos.csv')
 media_des = desv_padrao('media.csv', media_apt)
 aptos_des = desv_padrao('aptos.csv', aptos)
 pior_individuo_des = desv_padrao('piores_individuos.csv', pior_individuo)
-
 melhor_individuo_x, melhor_individuo_y = valor_da_variavel(bits_valores(), melhor_individuo_cromossomo)
 
 print("Melhor indivíduo:")
@@ -213,18 +213,18 @@ print(melhor_individuo_x, melhor_individuo_y)
 
 plt.subplot(4, 1, 1)
 plt.plot(eixo, aptos, eixo, pior_individuo, eixo, media_apt)
-plt.ylabel('Dados')
+plt.ylabel('Aptidão')
 
 plt.subplot(4, 1, 2)
-plt.errorbar(eixo, aptos, yerr=aptos_des, errorevery = 10)
+plt.errorbar(eixo, aptos, yerr=aptos_des, errorevery=10)
 plt.ylabel('Melhor indivíduo')
 
 plt.subplot(4, 1, 3)
-plt.errorbar(eixo, pior_individuo, yerr=pior_individuo_des, errorevery = 10)
+plt.errorbar(eixo, pior_individuo, yerr=pior_individuo_des, errorevery=10)
 plt.ylabel('Pior Individuo')
 
 plt.subplot(4, 1, 4)
-plt.errorbar(eixo, media_apt, yerr=media_des, errorevery = 10)
+plt.errorbar(eixo, media_apt, yerr=media_des, errorevery=10)
 plt.xlabel('Gerações')
 plt.ylabel('Média dos indivíduos')
 
