@@ -47,6 +47,10 @@ def valor_da_variavel(vetor_precisao, cromossomo):
     return eixo_x - 100, eixo_y - 100
 
 
+def normalizacao_linear():
+    pass
+
+
 def avaliacao_aptidao(vetor_populacao):
     vetor_aptidao = []
     for i in range(0, len(vetor_populacao)):
@@ -71,33 +75,39 @@ def selecao(populacao_selecao, vetor_aptidao):
     return selecionado
 
 
-def cruzamento(populacao_1):
-    contador = 0
+def elitismo():
+    pass
+
+
+def um_ponto(pai_1, pai_2, popula):
+    # Cruzamento com um ponto de corte aleatório
     filho_1 = []
     filho_2 = []
+    ponto = randint(1, 49)
+    for i in range(0, ponto):
+        filho_1.append(pai_1[i])
+        filho_2.append(pai_2[i])
+    for i in range(ponto, 50):
+        filho_1.append(pai_1[i])
+        filho_2.append(pai_2[i])
+    popula.append(filho_1)
+    popula.append(filho_2)
+    return popula
+
+
+def cruzamento(populacao_1):
+    contador = 0
     populacao_2 = []
     aptidao_cruzamento = avaliacao_aptidao(populacao_1)
-
     while contador < tamanho_populacao:
-        ponto = randint(1, 49)
         vetor = selecao(populacao_1, aptidao_cruzamento)
         pai_1 = vetor
         vetor = selecao(populacao_1, aptidao_cruzamento)
         pai_2 = vetor
         aleatorio = randint(0, 100)
         if aleatorio < taxa_cruzamento:
-            for i in range(0, ponto):
-                filho_1.append(pai_1[i])
-                filho_2.append(pai_2[i])
-            for i in range(ponto, 50):
-                filho_1.append(pai_1[i])
-                filho_2.append(pai_2[i])
-            populacao_2.append(filho_1)
-            populacao_2.append(filho_2)
-            filho_1 = []
-            filho_2 = []
+            populacao_2 = um_ponto(pai_1, pai_2, populacao_2)
             contador += 2
-
     return populacao_2
 
 
@@ -116,16 +126,25 @@ def mutacao(vetor_populacao, taxa_de_mutacao):
 
 
 def mais_apto(aptidao_apto, populacao_apto):
+    # Esta função retorna a maior aptidão e o cromossomo do indivíduo com a maior aptidão
     apto = aptidao_apto[0]
-    menos_apto = aptidao_apto[0]
     cromossomo = populacao_apto[0]
     for i in range(1, len(aptidao_apto)):
         if apto < aptidao_apto[i]:
             apto = aptidao_apto[i]
             cromossomo = populacao_apto[i]
-        if menos_apto > aptidao_apto[i]:
-            menos_apto = aptidao_apto[i]
-    return apto, cromossomo, menos_apto
+
+    return apto, cromossomo
+
+
+def menos_apto(aptidao_apto):
+    individuo_menos_apto = aptidao_apto[0]
+    # cromossomo = populacao_apto[0]
+    for i in range(1, len(aptidao_apto)):
+        if individuo_menos_apto > aptidao_apto[i]:
+            individuo_menos_apto = aptidao_apto[i]
+            # cromossomo = populacao_apto[i]
+    return individuo_menos_apto
 
 
 def media(arquivo):
@@ -175,11 +194,11 @@ for var1 in range(0, 10):
         pior_individuo = []
         populacao = populacao_nova
         while geracao_atual < geracoes:
-            # print(geracao_atual)
             populacao = cruzamento(populacao)
             populacao = mutacao(populacao, taxa_mutacao)
             aptidao = avaliacao_aptidao(populacao)
-            individuo_apto, cromossomo_apto, menor_fitness = mais_apto(aptidao, populacao)
+            individuo_apto, cromossomo_apto = mais_apto(aptidao, populacao)
+            menor_fitness = menos_apto(aptidao)
             aptos.append(individuo_apto)
             pior_individuo.append(menor_fitness)
             if individuo_apto > melhor_individuo and geracao_atual == 49:
