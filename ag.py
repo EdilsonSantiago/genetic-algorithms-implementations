@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import csv
 
 tamanho_populacao = 50
+tamanho_populacao_cruzamento = tamanho_populacao
 tamanho_codigo = 50
 geracoes = 1000
 melhor_individuo = 0
@@ -75,19 +76,26 @@ def selecao(populacao_selecao, vetor_aptidao):
     return selecionado
 
 
-def elitismo():
-    pass
+def elitismo(populacao_apto, aptidao_apto, populacao_2):
+    global tamanho_populacao_cruzamento
+    maior_apitdao, melhor_cromossomo = mais_apto(aptidao_apto, populacao_apto)
+    if tamanho_populacao == tamanho_populacao_cruzamento:
+        populacao_2.append(melhor_cromossomo)
+        tamanho_populacao_cruzamento += 1
+    else:
+        populacao_2.append(melhor_cromossomo)
+    return populacao_2
 
 
 def um_ponto(pai_1, pai_2, popula):
     # Cruzamento com um ponto de corte aleatório
     filho_1 = []
     filho_2 = []
-    ponto = randint(1, 49)
+    ponto = randint(1, tamanho_codigo)
     for i in range(0, ponto):
         filho_1.append(pai_1[i])
         filho_2.append(pai_2[i])
-    for i in range(ponto, 50):
+    for i in range(ponto, tamanho_codigo):
         filho_1.append(pai_1[i])
         filho_2.append(pai_2[i])
     popula.append(filho_1)
@@ -95,9 +103,8 @@ def um_ponto(pai_1, pai_2, popula):
     return popula
 
 
-def cruzamento(populacao_1):
+def cruzamento(populacao_1, populacao_2):
     contador = 0
-    populacao_2 = []
     aptidao_cruzamento = avaliacao_aptidao(populacao_1)
     while contador < tamanho_populacao:
         vetor = selecao(populacao_1, aptidao_cruzamento)
@@ -108,6 +115,16 @@ def cruzamento(populacao_1):
         if aleatorio < taxa_cruzamento:
             populacao_2 = um_ponto(pai_1, pai_2, populacao_2)
             contador += 2
+    return populacao_2
+
+
+def nova_populacao(populacao_1, aptidao_apto, elite=False):
+    if elite:
+        populacao_2 = elitismo(populacao_1, aptidao_apto, [])
+        populacao_2 = cruzamento(populacao_1, populacao_2)
+    else:
+        populacao_2 = cruzamento(populacao_1, [])
+
     return populacao_2
 
 
@@ -194,7 +211,8 @@ for var1 in range(0, 10):
         pior_individuo = []
         populacao = populacao_nova
         while geracao_atual < geracoes:
-            populacao = cruzamento(populacao)
+            aptidao = avaliacao_aptidao(populacao)
+            populacao = nova_populacao(populacao, aptidao, True)
             populacao = mutacao(populacao, taxa_mutacao)
             aptidao = avaliacao_aptidao(populacao)
             individuo_apto, cromossomo_apto = mais_apto(aptidao, populacao)
