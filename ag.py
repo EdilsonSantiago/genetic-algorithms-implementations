@@ -48,8 +48,41 @@ def valor_da_variavel(vetor_precisao, cromossomo):
     return eixo_x - 100, eixo_y - 100
 
 
-def normalizacao_linear():
-    pass
+def heap_sort(lista, cromossomo):
+    indice_final = len(lista) - 1
+    metade_lista = int(indice_final / 2)
+
+    for i in range(metade_lista, -1, -1):
+        cria_heap(lista, cromossomo, i, indice_final)
+
+    for i in range(indice_final, 0, -1):
+        if lista[0] > lista[i]:
+            lista[0], lista[i] = lista[i], lista[0]
+            cromossomo[0], cromossomo[i] = cromossomo[i], cromossomo[0]
+            cria_heap(lista, cromossomo, 0, i - 1)
+    return lista, cromossomo
+
+
+def cria_heap(lista, cromossomo, inicio, fim):
+    filho = inicio * 2 + 1
+    while filho <= fim:
+        if (filho < fim) and (lista[filho] < lista[filho + 1]):
+            filho += 1
+        if lista[inicio] < lista[filho]:
+            lista[inicio], lista[filho] = lista[filho], lista[inicio]
+            cromossomo[inicio], cromossomo[filho] = cromossomo[filho], cromossomo[inicio]
+            inicio = filho
+            filho = 2 * inicio + 1
+        else:
+            return
+
+
+def normalizacao_linear(tamanho_popula, minimo=10, maximo=100):
+    aptidao_normalizada = []
+    for i in range(0, tamanho_popula):
+        normalizada = minimo + (((maximo - minimo)/(tamanho_popula - 1)) * i)
+        aptidao_normalizada.append(normalizada)
+    return aptidao_normalizada
 
 
 def avaliacao_aptidao(vetor_populacao):
@@ -103,9 +136,8 @@ def um_ponto(pai_1, pai_2, popula):
     return popula
 
 
-def cruzamento(populacao_1, populacao_2):
+def cruzamento(populacao_1, populacao_2, aptidao_cruzamento):
     contador = 0
-    aptidao_cruzamento = avaliacao_aptidao(populacao_1)
     while contador < tamanho_populacao:
         vetor = selecao(populacao_1, aptidao_cruzamento)
         pai_1 = vetor
@@ -118,12 +150,23 @@ def cruzamento(populacao_1, populacao_2):
     return populacao_2
 
 
-def nova_populacao(populacao_1, aptidao_apto, elite=False):
-    if elite:
+def nova_populacao(populacao_1, aptidao_apto, elite=False, normalizacao=False):
+    if elite and not normalizacao:
+        aptidao_cruzamento = avaliacao_aptidao(populacao_1)
         populacao_2 = elitismo(populacao_1, aptidao_apto, [])
-        populacao_2 = cruzamento(populacao_1, populacao_2)
+        populacao_2 = cruzamento(populacao_1, populacao_2, aptidao_cruzamento)
+    elif not elite and normalizacao:
+        aptidao_apto, populacao_1 = heap_sort(aptidao_apto, populacao_1)
+        aptidao_cruzamento = normalizacao_linear(len(populacao_1))
+        populacao_2 = cruzamento(populacao_1, [], aptidao_cruzamento)
+    elif elite and normalizacao:
+        aptidao_apto, populacao_1 = heap_sort(aptidao_apto, populacao_1)
+        populacao_2 = elitismo(populacao_1, aptidao_apto, [])
+        aptidao_cruzamento = normalizacao_linear(len(populacao_1))
+        populacao_2 = cruzamento(populacao_1, populacao_2, aptidao_cruzamento)
     else:
-        populacao_2 = cruzamento(populacao_1, [])
+        aptidao_cruzamento = avaliacao_aptidao(populacao_1)
+        populacao_2 = cruzamento(populacao_1, [], aptidao_cruzamento)
 
     return populacao_2
 
@@ -212,7 +255,7 @@ for var1 in range(0, 10):
         populacao = populacao_nova
         while geracao_atual < geracoes:
             aptidao = avaliacao_aptidao(populacao)
-            populacao = nova_populacao(populacao, aptidao, True)
+            populacao = nova_populacao(populacao, aptidao, True, normalizacao=True)
             populacao = mutacao(populacao, taxa_mutacao)
             aptidao = avaliacao_aptidao(populacao)
             individuo_apto, cromossomo_apto = mais_apto(aptidao, populacao)
