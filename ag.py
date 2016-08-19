@@ -8,25 +8,28 @@ import csv
 tamanho_populacao = 50
 tamanho_populacao_cruzamento = tamanho_populacao
 tamanho_codigo = 50
-geracoes = 1000
+geracoes = 200
 melhor_individuo = 0
 melhor_individuo_cromossomo = []
 geracao_atual = 0
 taxa_cruzamento = 75
 taxa_mutacao = 1
-eixo = np.linspace(0, 999, 1000)
+eixo = np.linspace(0, 199, 200)
 
 
 def criar_populacao():
     populacao_criada = []
-    lista = []
-
     for i in range(0, tamanho_populacao):
-        for j in range(0, tamanho_codigo):
-            lista.append(randint(0, 1))
+        lista = vetor_aleatorio(tamanho_codigo)
         populacao_criada.append(lista)
-        lista = []
     return populacao_criada
+
+
+def vetor_aleatorio(tamanho):
+    lista = []
+    for i in range(0, tamanho):
+        lista.append(randint(0, 1))
+    return lista
 
 
 def bits_valores():
@@ -136,6 +139,45 @@ def um_ponto(pai_1, pai_2, popula):
     return popula
 
 
+def dois_pontos(pai_1, pai_2, popula):
+    # Cruzamento com dois pontos de corte aleatórios
+    filho1 = []
+    filho2 = []
+    num1 = randint(0, 50)
+    num2 = randint(0, 50)
+    if num2 < num1:
+        num1, num2 = num2, num1
+    for i in range(0, num1):
+        filho1.append(pai_1[i])
+        filho2.append(pai_2[i])
+    for i in range(num1, num2):
+        filho1.append(pai_2[i])
+        filho2.append(pai_1[i])
+    for i in range(num2, 50):
+        filho1.append(pai_1[i])
+        filho2.append(pai_2[i])
+    popula.append(filho1)
+    popula.append(filho2)
+    return popula
+
+
+def uniforme(pai_1, pai_2, popula):
+    # Cruzamento máscara binária
+    filho1 = []
+    filho2 = []
+    mascara = vetor_aleatorio(tamanho_codigo)
+    for i in range(0, tamanho_codigo):
+        if mascara[i]:
+            filho1.append(pai_1[i])
+            filho2.append(pai_2[i])
+        else:
+            filho1.append(pai_2[i])
+            filho2.append(pai_1[i])
+    popula.append(filho1)
+    popula.append(filho2)
+    return popula
+
+
 def cruzamento(populacao_1, populacao_2, aptidao_cruzamento):
     contador = 0
     while contador < tamanho_populacao:
@@ -145,7 +187,9 @@ def cruzamento(populacao_1, populacao_2, aptidao_cruzamento):
         pai_2 = vetor
         aleatorio = randint(0, 100)
         if aleatorio < taxa_cruzamento:
-            populacao_2 = um_ponto(pai_1, pai_2, populacao_2)
+            # populacao_2 = um_ponto(pai_1, pai_2, populacao_2)
+            # populacao_2 = dois_pontos(pai_1, pai_2, populacao_2)
+            populacao_2 = uniforme(pai_1, pai_2, populacao_2)
             contador += 2
     return populacao_2
 
@@ -182,6 +226,18 @@ def mutacao(vetor_populacao, taxa_de_mutacao):
             else:
                 vetor[indice_vetor] = 0
             vetor_populacao[i] = vetor
+    return vetor_populacao
+
+
+def mutacao_n(vetor_populacao, taxa_de_mutacao):
+    for i in range(0, len(vetor_populacao) - 1):
+        for j in range(0, tamanho_codigo):
+            numero_aleatorio = uniform(0, 100)
+            if numero_aleatorio < taxa_de_mutacao:
+                if vetor_populacao[i][j] == 0:
+                    vetor_populacao[i][j] = 1
+                else:
+                    vetor_populacao[i][j] = 0
     return vetor_populacao
 
 
@@ -255,7 +311,7 @@ for var1 in range(0, 10):
         populacao = populacao_nova
         while geracao_atual < geracoes:
             aptidao = avaliacao_aptidao(populacao)
-            populacao = nova_populacao(populacao, aptidao, True, normalizacao=True)
+            populacao = nova_populacao(populacao, aptidao)
             populacao = mutacao(populacao, taxa_mutacao)
             aptidao = avaliacao_aptidao(populacao)
             individuo_apto, cromossomo_apto = mais_apto(aptidao, populacao)
@@ -293,19 +349,24 @@ print(melhor_individuo_x, melhor_individuo_y)
 
 plt.subplot(4, 1, 1)
 plt.plot(eixo, aptos, eixo, pior_individuo, eixo, media_apt)
+plt.autoscale(axis='y', tight=False)
 plt.ylabel('Aptidão')
 
 plt.subplot(4, 1, 2)
-plt.errorbar(eixo, aptos, yerr=aptos_des, errorevery=10)
+plt.errorbar(eixo, aptos, yerr=aptos_des, errorevery=3)
+plt.autoscale(axis='y', tight=True)
 plt.ylabel('Melhor indivíduo')
 
 plt.subplot(4, 1, 3)
-plt.errorbar(eixo, pior_individuo, yerr=pior_individuo_des, errorevery=10)
-plt.ylabel('Pior Individuo')
+plt.errorbar(eixo, media_apt, color='r', yerr=media_des, errorevery=3, ecolor='r')
+plt.autoscale(axis='y', tight=True)
+plt.ylabel('Média dos indivíduos')
 
 plt.subplot(4, 1, 4)
-plt.errorbar(eixo, media_apt, yerr=media_des, errorevery=10)
+plt.errorbar(eixo, pior_individuo, color='g', yerr=pior_individuo_des, errorevery=3, ecolor='g')
+plt.autoscale(axis='y', tight=True)
 plt.xlabel('Gerações')
-plt.ylabel('Média dos indivíduos')
+plt.ylabel('Pior Individuo')
+
 
 plt.show()
