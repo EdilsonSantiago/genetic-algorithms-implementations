@@ -1,7 +1,7 @@
 __author__ = 'edilson'
 
 import numpy as np
-# from random import randint, uniform
+from random import randint, uniform
 # import matplotlib.pyplot as plt
 import csv
 
@@ -17,7 +17,13 @@ eixo = np.linspace(0, 199, 200)
 
 
 def criar_populacao():
-    pass
+    populacao_criada = []
+    for i in range(0, tamanho_populacao):
+        individuo = [0, 0]
+        individuo[0] = uniform(-100, 100)  # Valor de x aleatório
+        individuo[1] = uniform(-100, 100)  # Valor de y aleatório
+        populacao_criada.append(individuo)
+    return populacao_criada
 
 
 def normalizacao_linear():
@@ -83,3 +89,5 @@ def desv_padrao(arquivo, vetor_padrao):
         soma_desvio[indice] /= 30
     desvio_padrao = np.sqrt(soma_desvio)
     return desvio_padrao
+
+print(criar_populacao())
