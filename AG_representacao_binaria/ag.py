@@ -297,9 +297,9 @@ def desv_padrao(arq, vetor_padrao):
     return desvio_padrao
 
 # Execução do Algoritmo Genético
-c = csv.writer(open('aptos.csv', 'w'))
-d = csv.writer(open('media.csv', 'w'))
-r = csv.writer(open('piores_individuos.csv', 'w'))
+c = csv.writer(open('AG_representacao_binaria/aptos.csv', 'w'))
+d = csv.writer(open('AG_representacao_binaria/media.csv', 'w'))
+r = csv.writer(open('AG_representacao_binaria/piores_individuos.csv', 'w'))
 for var1 in range(0, 10):
     populacao_nova = criar_populacao()
     var = 0
@@ -331,13 +331,13 @@ for var1 in range(0, 10):
             var += 1
         geracao_atual = 0
 # Média dos 30 ensaios
-media_apt = media('media.csv')
-aptos = media('aptos.csv')
-pior_individuo = media('piores_individuos.csv')
+media_apt = media('AG_representacao_binaria/media.csv')
+aptos = media('AG_representacao_binaria/aptos.csv')
+pior_individuo = media('AG_representacao_binaria/piores_individuos.csv')
 # Desvio padrão dos 30 ensaios
-media_des = desv_padrao('media.csv', media_apt)
-aptos_des = desv_padrao('aptos.csv', aptos)
-pior_individuo_des = desv_padrao('piores_individuos.csv', pior_individuo)
+media_des = desv_padrao('AG_representacao_binaria/media.csv', media_apt)
+aptos_des = desv_padrao('AG_representacao_binaria/aptos.csv', aptos)
+pior_individuo_des = desv_padrao('AG_representacao_binaria/piores_individuos.csv', pior_individuo)
 melhor_individuo_x, melhor_individuo_y = valor_da_variavel(bits_valores(), melhor_individuo_cromossomo)
 
 print("Melhor indivíduo:")
