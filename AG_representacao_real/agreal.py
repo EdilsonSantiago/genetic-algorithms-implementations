@@ -39,8 +39,18 @@ def avaliacao_aptidao(populacao):
     return vetor_aptidao
 
 
-def selecao():
-    pass
+def selecao(populacao, vetor_aptidao):  # Esta funcao selecionara um individuo utilizando o metodo da roleta
+    soma, acumulador, ind = 0, vetor_aptidao[0], 0
+    selecionado = []
+    soma = sum(vetor_aptidao)
+    num_aleatorio = uniform(0, soma)
+    while len(selecionado) != 2:
+        acumulador += vetor_aptidao[ind]
+        if acumulador >= num_aleatorio:
+            selecionado = populacao[ind]
+            break
+        ind += 1
+    return selecionado
 
 
 def elitismo():
@@ -94,3 +104,7 @@ def desv_padrao(arquivo, vetor_padrao):
         soma_desvio[indice] /= 30
     desvio_padrao = np.sqrt(soma_desvio)
     return desvio_padrao
+
+popula = criar_populacao()
+apt = avaliacao_aptidao(popula)
+selecao(popula, apt)
