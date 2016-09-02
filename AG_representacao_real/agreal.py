@@ -1,7 +1,7 @@
 __author__ = 'edilson'
 
 import numpy as np
-from random import randint, uniform
+from random import uniform
 # import matplotlib.pyplot as plt
 import csv
 
@@ -17,21 +17,26 @@ eixo = np.linspace(0, 199, 200)
 
 
 def criar_populacao():
-    populacao_criada = []
+    populacao = []
     for i in range(0, tamanho_populacao):
         individuo = [0, 0]
         individuo[0] = uniform(-100, 100)  # Valor de x aleatório
         individuo[1] = uniform(-100, 100)  # Valor de y aleatório
-        populacao_criada.append(individuo)
-    return populacao_criada
+        populacao.append(individuo)
+    return populacao
 
 
 def normalizacao_linear():
     pass
 
 
-def avaliacao_aptidao():
-    pass
+def avaliacao_aptidao(populacao):
+    vetor_aptidao = []
+    for i in range(0, len(populacao)):
+        x, y = populacao[i][0], populacao[i][1]
+        aptd = 0.5 - (((np.sin(np.sqrt(x**2 + y**2)))**2 - 0.5) / (1 + (0.001 * (x**2 + y**2)) ** 2))
+        vetor_aptidao.append(aptd)
+    return vetor_aptidao
 
 
 def selecao():
@@ -89,5 +94,3 @@ def desv_padrao(arquivo, vetor_padrao):
         soma_desvio[indice] /= 30
     desvio_padrao = np.sqrt(soma_desvio)
     return desvio_padrao
-
-print(criar_populacao())
