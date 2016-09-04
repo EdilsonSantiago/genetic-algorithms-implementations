@@ -2,9 +2,11 @@ __author__ = 'edilson'
 
 import numpy as np
 from random import uniform
-# import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 import csv
+import time
 
+tempo_ini = time.time()
 tamanho_populacao = 50
 tamanho_populacao_cruzamento = tamanho_populacao
 geracoes = 200
@@ -26,8 +28,41 @@ def criar_populacao():
     return populacao
 
 
-def normalizacao_linear():
-    pass
+def heap_sort(lista, cromossomo):
+    indice_final = len(lista) - 1
+    metade_lista = int(indice_final / 2)
+
+    for i in range(metade_lista, -1, -1):
+        cria_heap(lista, cromossomo, i, indice_final)
+
+    for i in range(indice_final, 0, -1):
+        if lista[0] > lista[i]:
+            lista[0], lista[i] = lista[i], lista[0]
+            cromossomo[0], cromossomo[i] = cromossomo[i], cromossomo[0]
+            cria_heap(lista, cromossomo, 0, i - 1)
+    return lista, cromossomo
+
+
+def cria_heap(lista, cromossomo, inicio, fim):
+    filho = inicio * 2 + 1
+    while filho <= fim:
+        if (filho < fim) and (lista[filho] < lista[filho + 1]):
+            filho += 1
+        if lista[inicio] < lista[filho]:
+            lista[inicio], lista[filho] = lista[filho], lista[inicio]
+            cromossomo[inicio], cromossomo[filho] = cromossomo[filho], cromossomo[inicio]
+            inicio = filho
+            filho = 2 * inicio + 1
+        else:
+            return
+
+
+def normalizacao_linear(tamanho_popula, minimo=10, maximo=100):
+    aptidao_normalizada = []
+    for i in range(0, tamanho_popula):
+        normalizada = minimo + (((maximo - minimo)/(tamanho_popula - 1)) * i)
+        aptidao_normalizada.append(normalizada)
+    return aptidao_normalizada
 
 
 def avaliacao_aptidao(populacao):
@@ -53,24 +88,97 @@ def selecao(populacao, vetor_aptidao):  # Esta funcao selecionara um individuo u
     return selecionado
 
 
-def elitismo():
-    pass
+def elitismo(populacao_apto, aptidoes, populacao):
+    global tamanho_populacao_cruzamento
+    maior_apitdao, melhor_cromossomo = mais_apto(aptidoes, populacao_apto)
+    if tamanho_populacao == tamanho_populacao_cruzamento:
+        populacao.append(melhor_cromossomo)
+        tamanho_populacao_cruzamento += 1
+    else:
+        populacao.append(melhor_cromossomo)
+    return populacao
 
 
-def cruzamento():
-    pass
+def aritmetico(pai_1, pai_2, populacao):
+    # Implemntação do cruzamento aritmético
+    # a - número aleatório entre 0 e 1
+    # F1 = (a * p1) + ((1 - a) * p2) e F2 = (a * p2) + ((1 - a) * p1)
+    a = uniform(0, 1)
+    filho1 = []
+    filho2 = []
+    for i in range(0, 2):
+        filho1.append((a * pai_1[i]) + ((1 - a) * pai_2[i]))
+        filho2.append((a * pai_2[i]) + ((1 - a) * pai_1[i]))
+    populacao.append(filho1)
+    populacao.append(filho2)
+    return populacao
 
 
-def mutacao():
-    pass
+def cruzamento(populacao_1, populacao_2, aptidao_cruzamento):
+    contador = 0
+    while contador < tamanho_populacao:
+        vetor = selecao(populacao_1, aptidao_cruzamento)
+        pai_1 = vetor
+        vetor = selecao(populacao_1, aptidao_cruzamento)
+        pai_2 = vetor
+        aleatorio = uniform(0, 100)
+        if aleatorio < taxa_cruzamento:
+            populacao_2 = aritmetico(pai_1, pai_2, populacao_2)
+            contador += 2
+    return populacao_2
 
 
-def mais_apto():
-    pass
+def nova_populacao(populacao_1, aptidao_apto, elite=False, normalizacao=False):
+    if elite and not normalizacao:
+        aptidao_cruzamento = avaliacao_aptidao(populacao_1)
+        populacao_2 = elitismo(populacao_1, aptidao_apto, [])
+        populacao_2 = cruzamento(populacao_1, populacao_2, aptidao_cruzamento)
+    elif not elite and normalizacao:
+        aptidao_apto, populacao_1 = heap_sort(aptidao_apto, populacao_1)
+        aptidao_cruzamento = normalizacao_linear(len(populacao_1))
+        populacao_2 = cruzamento(populacao_1, [], aptidao_cruzamento)
+    elif elite and normalizacao:
+        aptidao_apto, populacao_1 = heap_sort(aptidao_apto, populacao_1)
+        populacao_2 = elitismo(populacao_1, aptidao_apto, [])
+        aptidao_cruzamento = normalizacao_linear(len(populacao_1))
+        populacao_2 = cruzamento(populacao_1, populacao_2, aptidao_cruzamento)
+    else:
+        aptidao_cruzamento = avaliacao_aptidao(populacao_1)
+        populacao_2 = cruzamento(populacao_1, [], aptidao_cruzamento)
+
+    return populacao_2
 
 
-def menos_apto():
-    pass
+def mutacao(populacao):
+    # Mutação randômica uniforme
+    for i in range(0, len(populacao)):
+        for j in range(0, 2):
+            numero_aleatorio = uniform(0, 100)
+            if numero_aleatorio < taxa_mutacao:
+                populacao[i][j] = uniform(-100, 100)
+    return populacao
+
+
+def mais_apto(aptidoes, populacao):
+    # Esta função retorna a maior aptidão e o cromossomo do indivíduo com a maior aptidão
+    apto = aptidoes[0]
+    cromossomo = populacao[0]
+    for i in range(1, len(aptidoes)):
+        if apto < aptidoes[i]:
+            apto = aptidoes[i]
+            cromossomo = populacao[i]
+
+    return apto, cromossomo
+
+
+def menos_apto(aptidoes):
+    individuo_menos_apto = aptidoes[0]
+    # cromossomo = populacao_apto[0]
+    for i in range(1, len(aptidoes)):
+        if individuo_menos_apto > aptidoes[i]:
+            individuo_menos_apto = aptidoes[i]
+            # cromossomo = populacao_apto[i]
+    return individuo_menos_apto
 
 
 def media(arquivo):
@@ -91,8 +199,9 @@ def media(arquivo):
 
 
 def desv_padrao(arquivo, vetor_padrao):
-    soma_desvio = np.zeros(geracoes - 1)
-    print(soma_desvio)
+    soma_desvio = []
+    for p in range(0, geracoes):
+        soma_desvio.append(0)
     with open(arquivo, 'r') as ar:
         reader = csv.reader(ar, delimiter=',')
         for linha in reader:
@@ -105,6 +214,78 @@ def desv_padrao(arquivo, vetor_padrao):
     desvio_padrao = np.sqrt(soma_desvio)
     return desvio_padrao
 
-popula = criar_populacao()
-apt = avaliacao_aptidao(popula)
-selecao(popula, apt)
+
+# ----------------------------------Execução do AG------------------------------------------------------
+c = csv.writer(open('aptos_real.csv', 'w'))
+d = csv.writer(open('media_real.csv', 'w'))
+r = csv.writer(open('piores_individuos_real.csv', 'w'))
+for var1 in range(0, 10):
+    populacao_nova = criar_populacao()
+    var = 0
+    while var < 3:
+        print(var)
+        aptos = []
+        media_apt = []
+        pior_individuo = []
+        popula = populacao_nova
+        while geracao_atual < geracoes:
+            aptidao = avaliacao_aptidao(popula)
+            popula = nova_populacao(popula, aptidao, normalizacao=True)
+            popula = mutacao(popula)
+            aptidao = avaliacao_aptidao(popula)
+            individuo_apto, cromossomo_apto = mais_apto(aptidao, popula)
+            menor_fitness = menos_apto(aptidao)
+            aptos.append(individuo_apto)
+            pior_individuo.append(menor_fitness)
+            if individuo_apto > melhor_individuo and geracao_atual == 49:
+                melhor_individuo = individuo_apto
+                melhor_individuo_cromossomo = cromossomo_apto
+            media_apt.append(sum(aptidao)/len(aptidao))
+            geracao_atual += 1
+
+        if len(aptos) and len(media_apt) == geracoes:
+            c.writerow(aptos)
+            d.writerow(media_apt)
+            r.writerow(pior_individuo)
+            var += 1
+        geracao_atual = 0
+# Média dos 30 ensaios
+media_apt = media('media_real.csv')
+aptos = media('aptos_real.csv')
+pior_individuo = media('piores_individuos_real.csv')
+# Desvio padrão dos 30 ensaios
+media_des = desv_padrao('media_real.csv', media_apt)
+aptos_des = desv_padrao('aptos_real.csv', aptos)
+pior_individuo_des = desv_padrao('piores_individuos_real.csv', pior_individuo)
+
+print("Melhor indivíduo:")
+print(melhor_individuo)
+print("Cromossomo")
+print(melhor_individuo_cromossomo)
+print("Tempo")
+tempo_fim = time.time()
+print(tempo_fim - tempo_ini)
+
+plt.subplot(4, 1, 1)
+plt.plot(eixo, aptos, eixo, pior_individuo, eixo, media_apt)
+plt.autoscale(axis='y', tight=False)
+plt.ylabel('Aptidão')
+
+plt.subplot(4, 1, 2)
+plt.errorbar(eixo, aptos, yerr=aptos_des, errorevery=3)
+plt.autoscale(axis='y', tight=True)
+plt.ylabel('Melhor indivíduo')
+
+plt.subplot(4, 1, 3)
+plt.errorbar(eixo, media_apt, color='r', yerr=media_des, errorevery=3, ecolor='r')
+plt.autoscale(axis='y', tight=True)
+plt.ylabel('Média dos indivíduos')
+
+plt.subplot(4, 1, 4)
+plt.errorbar(eixo, pior_individuo, color='g', yerr=pior_individuo_des, errorevery=3, ecolor='g')
+plt.autoscale(axis='y', tight=True)
+plt.xlabel('Gerações')
+plt.ylabel('Pior Individuo')
+
+
+plt.show()
