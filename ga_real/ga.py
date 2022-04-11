@@ -216,9 +216,9 @@ def desv_padrao(arquivo, vetor_padrao):
 
 
 # ----------------------------------Execução do AG------------------------------------------------------
-c = csv.writer(open('aptos_real.csv', 'w'))
-d = csv.writer(open('media_real.csv', 'w'))
-r = csv.writer(open('piores_individuos_real.csv', 'w'))
+c = csv.writer(open('files/fittest.csv', 'w'))
+d = csv.writer(open('files/average.csv', 'w'))
+r = csv.writer(open('files/worst_individuals.csv', 'w'))
 for var1 in range(0, 10):
     populacao_nova = criar_populacao()
     var = 0
@@ -250,13 +250,13 @@ for var1 in range(0, 10):
             var += 1
         geracao_atual = 0
 # Média dos 30 ensaios
-media_apt = media('media_real.csv')
-aptos = media('aptos_real.csv')
-pior_individuo = media('piores_individuos_real.csv')
+media_apt = media('files/average.csv')
+aptos = media('files/fittest.csv')
+pior_individuo = media('files/worst_individuals.csv')
 # Desvio padrão dos 30 ensaios
-media_des = desv_padrao('media_real.csv', media_apt)
-aptos_des = desv_padrao('aptos_real.csv', aptos)
-pior_individuo_des = desv_padrao('piores_individuos_real.csv', pior_individuo)
+media_des = desv_padrao('files/average.csv', media_apt)
+aptos_des = desv_padrao('files/fittest.csv', aptos)
+pior_individuo_des = desv_padrao('files/worst_individuals.csv', pior_individuo)
 
 print("Melhor indivíduo:")
 print(melhor_individuo)
