@@ -4,6 +4,9 @@ import numpy as np
 from random import randint, uniform
 import matplotlib.pyplot as plt
 import csv
+import pathlib
+
+script_path = pathlib.Path(__file__).parent.resolve()
 
 tamanho_populacao = 50
 tamanho_populacao_cruzamento = tamanho_populacao
@@ -297,14 +300,13 @@ def desv_padrao(arq, vetor_padrao):
     return desvio_padrao
 
 # Execução do Algoritmo Genético
-c = csv.writer(open('files/fittest.csv', 'w'))
-d = csv.writer(open('files/average.csv', 'w'))
-r = csv.writer(open('files/worst_individuals.csv', 'w'))
+c = csv.writer(open(script_path / 'files/fittest.csv', 'w'))
+d = csv.writer(open(script_path / 'files/average.csv', 'w'))
+r = csv.writer(open(script_path / 'files/worst_individuals.csv', 'w'))
 for var1 in range(0, 10):
     populacao_nova = criar_populacao()
     var = 0
     while var < 3:
-        print(var)
         aptos = []
         media_apt = []
         pior_individuo = []
@@ -331,13 +333,13 @@ for var1 in range(0, 10):
             var += 1
         geracao_atual = 0
 # Média dos 30 ensaios
-media_apt = media('files/average.csv')
-aptos = media('files/fittest.csv')
-pior_individuo = media('files/worst_individuals.csv')
+media_apt = media(script_path / 'files/average.csv')
+aptos = media(script_path / 'files/fittest.csv')
+pior_individuo = media(script_path / 'files/worst_individuals.csv')
 # Desvio padrão dos 30 ensaios
-media_des = desv_padrao('files/average.csv', media_apt)
-aptos_des = desv_padrao('files/fittest.csv', aptos)
-pior_individuo_des = desv_padrao('files/worst_individuals.csv', pior_individuo)
+media_des = desv_padrao(script_path / 'files/average.csv', media_apt)
+aptos_des = desv_padrao(script_path / 'files/fittest.csv', aptos)
+pior_individuo_des = desv_padrao(script_path / 'files/worst_individuals.csv', pior_individuo)
 melhor_individuo_x, melhor_individuo_y = valor_da_variavel(bits_valores(), melhor_individuo_cromossomo)
 
 print("Melhor indivíduo:")
